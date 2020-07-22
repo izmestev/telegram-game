@@ -6,8 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -41,20 +43,36 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Message received = Optional.ofNullable(update.getMessage())
-                .or(() -> Optional.ofNullable(update.getCallbackQuery())
-                        .map(CallbackQuery::getMessage))
-                .orElseThrow();
+        Optional<CallbackQuery> callback = Optional.ofNullable(update.getCallbackQuery());
 
-        Long id = Optional.of(received)
+        // Send callback
+        callback.ifPresent(this::sendCallback);
+
+        // Get message
+        Message message = Optional.ofNullable(update.getMessage())
+                .or(() -> callback.map(CallbackQuery::getMessage))
+                .orElseThrow();
+        // Get chapter id
+        Long id = getNextChapterId(message, update);
+
+        // Find next chapter
+        Optional<Chapter> chapter = repository.findById(id);
+
+        // Log chapter
+        Chat chat = message.getChat();
+        String name = chat.getFirstName() + " " + chat.getLastName();
+        log.info(String.format("User %s on %d chapter", name, id));
+
+        // Send message
+        chapter.ifPresent(c -> sendMessage(c, message.getChatId()));
+    }
+
+    private Long getNextChapterId(Message message, Update update) {
+        return Optional.of(message)
                 .map(Message::getText)
                 .filter(START::equals)
                 .map(text -> 0L)
                 .orElse(getChapterId(update));
-
-        Optional<Chapter> chapter = repository.findById(id);
-        chapter.ifPresent(c -> sendMessage(c, received.getChatId(), received.getMessageId()));
-
     }
 
     private Long getChapterId(Update update) {
@@ -82,9 +100,16 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    private void sendMessage(Chapter chapter, Long chatId, Integer messageId) {
+    private void sendCallback(CallbackQuery callback) {
+        AnswerCallbackQuery answer = new AnswerCallbackQuery();
+        answer.setCallbackQueryId(callback.getId());
+        answer.setShowAlert(false);
+        execute(answer);
+    }
+
+    @SneakyThrows
+    private void sendMessage(Chapter chapter, Long chatId) {
         SendMessage message = new SendMessage(chatId, chapter.getText());
-        message.setReplyToMessageId(messageId);
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
         markupKeyboard.setKeyboard(createButtons(chapter));
         message.setReplyMarkup(markupKeyboard);

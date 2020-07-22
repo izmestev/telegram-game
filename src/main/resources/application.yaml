@@ -1,0 +1,16 @@
+telegram:
+  token: 1371827644:AAEHTWSNTa1qrwhiNmUNf7XDkpOZzA1K_rI
+  name: StainlessSteelRat
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:book
+    driver-class-name: org.h2.Driver
+    username: kosstantine
+    password: 1403
+  jpa:
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+

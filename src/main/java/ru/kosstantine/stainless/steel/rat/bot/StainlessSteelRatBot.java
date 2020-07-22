@@ -76,7 +76,7 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
             Long redirect = getRedirect(button.getRedirect());
             InlineKeyboardButton keyboardButton = new InlineKeyboardButton(text)
                     .setCallbackData(String.valueOf(redirect));
-            buttons.add(List.of(keyboardButton));
+            buttons.add(Collections.singletonList(keyboardButton));
         }
         return buttons;
     }

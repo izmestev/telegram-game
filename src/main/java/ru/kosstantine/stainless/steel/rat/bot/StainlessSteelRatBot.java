@@ -41,19 +41,19 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Message receivedMessage = Optional.ofNullable(update.getMessage())
+        Message received = Optional.ofNullable(update.getMessage())
                 .or(() -> Optional.ofNullable(update.getCallbackQuery())
                         .map(CallbackQuery::getMessage))
                 .orElseThrow();
 
-        Long id = Optional.of(receivedMessage)
+        Long id = Optional.of(received)
                 .map(Message::getText)
                 .filter(START::equals)
                 .map(text -> 0L)
                 .orElse(getChapterId(update));
 
         Optional<Chapter> chapter = repository.findById(id);
-        chapter.ifPresent(c -> sendMessage(c, receivedMessage.getChatId()));
+        chapter.ifPresent(c -> sendMessage(c, received.getChatId(), received.getMessageId()));
 
     }
 
@@ -82,8 +82,9 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    private void sendMessage(Chapter chapter, Long chatId) {
+    private void sendMessage(Chapter chapter, Long chatId, Integer messageId) {
         SendMessage message = new SendMessage(chatId, chapter.getText());
+        message.setReplyToMessageId(messageId);
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
         markupKeyboard.setKeyboard(createButtons(chapter));
         message.setReplyMarkup(markupKeyboard);

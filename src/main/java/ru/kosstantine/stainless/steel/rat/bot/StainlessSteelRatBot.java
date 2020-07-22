@@ -42,9 +42,9 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Message receivedMessage = Optional.ofNullable(update.getMessage())
-                .flatMap(m -> Optional.ofNullable(update.getCallbackQuery())
+                .or(() -> Optional.ofNullable(update.getCallbackQuery())
                         .map(CallbackQuery::getMessage))
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow();
 
         Long id = Optional.of(receivedMessage)
                 .map(Message::getText)
@@ -71,15 +71,13 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
 
     private List<List<InlineKeyboardButton>> createButtons(Chapter chapter) {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-
         for (Button button : chapter.getButtons()) {
             String text = button.getSmile() + " " + button.getText();
             Long redirect = getRedirect(button.getRedirect());
             InlineKeyboardButton keyboardButton = new InlineKeyboardButton(text)
                     .setCallbackData(String.valueOf(redirect));
-            buttons.add(Collections.singletonList(keyboardButton));
+            buttons.add(List.of(keyboardButton));
         }
-        
         return buttons;
     }
 

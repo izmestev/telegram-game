@@ -42,9 +42,9 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Message receivedMessage = Optional.ofNullable(update.getMessage())
-                .or(() -> Optional.ofNullable(update.getCallbackQuery())
+                .flatMap(m -> Optional.ofNullable(update.getCallbackQuery())
                         .map(CallbackQuery::getMessage))
-                .orElseThrow();
+                .orElseThrow(NoSuchElementException::new);
 
         Long id = Optional.of(receivedMessage)
                 .map(Message::getText)

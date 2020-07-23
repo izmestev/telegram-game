@@ -52,6 +52,7 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
         Message message = Optional.ofNullable(update.getMessage())
                 .or(() -> callback.map(CallbackQuery::getMessage))
                 .orElseThrow();
+
         // Get chapter id
         Long id = getNextChapterId(message, update);
 

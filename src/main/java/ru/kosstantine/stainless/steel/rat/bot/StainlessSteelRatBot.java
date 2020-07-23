@@ -55,7 +55,6 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
 
         // Get chapter id
         Long id = getNextChapterId(message, update);
-        id = 131L;
 
         // Find next chapter
         Optional<Chapter> chapter = repository.findById(id);

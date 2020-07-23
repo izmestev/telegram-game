@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,6 +25,6 @@ public class Button {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "button_redirect")
     @JoinColumn(name = "button_id")
-    private List<Long> redirect;
+    private Set<Long> redirect;
 
 }

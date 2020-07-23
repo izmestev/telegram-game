@@ -55,6 +55,7 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
 
         // Get chapter id
         Long id = getNextChapterId(message, update);
+        id = 131L;
 
         // Find next chapter
         Optional<Chapter> chapter = repository.findById(id);
@@ -82,10 +83,10 @@ public class StainlessSteelRatBot extends TelegramLongPollingBot {
                 .map(Long::valueOf).orElse(-1L);
     }
 
-    private Long getRedirect(List<Long> redirects) {
+    private Long getRedirect(Set<Long> redirects) {
         int size = redirects.size();
         int index = size > 1 ? new Random().nextInt(size - 1) : 0;
-        return redirects.get(index);
+        return new ArrayList<>(redirects).get(index);
     }
 
     private List<List<InlineKeyboardButton>> createButtons(Chapter chapter) {

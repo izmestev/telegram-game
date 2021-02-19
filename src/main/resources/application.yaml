@@ -1,6 +1,6 @@
 telegram:
-  token: 1371827644:AAEHTWSNTa1qrwhiNmUNf7XDkpOZzA1K_rI
-  name: StainlessSteelRat
+  token:
+  name: 
 
 spring:
   datasource:
